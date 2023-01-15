@@ -1,6 +1,9 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QListWidget, QHBoxLayout, QVBoxLayout, QFileDialog
 import os
+
 from PIL import Image
+
+from PIL import ImageFilter
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
@@ -9,8 +12,13 @@ class ImageProcessor():
     def __init__(self):
         self.image = None
         self.full_path = None
+        self.modified_dir_name = 'Modified'
     def loadImage(self, dir, name):
         self.full_path = os.path.join(dir, name)
+        print(self.full_path)
+        self.image = Image.open(self.full_path)
+        self.current_dir = dir
+        self.image_name = name
     def showImage(self):
         lbl_image.hide()
         pixmapimage = QPixmap(self.full_path)
@@ -18,8 +26,29 @@ class ImageProcessor():
         pixmapimage = pixmapimage.scaled(w, h, Qt.KeepAspectRatio)
         lbl_image.setPixmap(pixmapimage)
         lbl_image.show()
-
-
+    def saveImage(self):
+        path = os.path.join(self.current_dir, self.modified_dir_name)
+        if not (os.path.exist(path) and os.path.isdir(path)):
+            os.mkdir(path)
+        self.full_path = os.path.join(path, self.image_name)
+        self.image.save(self.full_path)
+    def do_bw(self):
+        self.image = self.image.convert('L')
+        self.saveImage()
+        self.showImage()
+    def do_blur(self):
+        self.image = self.image.filter(ImageFilter.BLUR)
+        self.saveImage()
+        self.showImage()
+    def do_up(self):
+        self.image = self.image.transpose(Image.ROTATE_90)
+        self.saveImage()
+        self.showImage()
+    def do_mir(self):
+        self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.saveImage()
+        self.showImage()
+        
 app = QApplication([])
 main_win = QWidget()
 main_win.setWindowTitle('Редактор изображений')
@@ -91,6 +120,13 @@ def showChoosenImage():
 
 btn_select_dir.clicked.connect(showFileNames)
 list_widget_images.currentRowChanged.connect(showChoosenImage)
+
+btn_bw.clicked.connect(current_image.do_bw)
+btn_left.clicked.connect(current_image.do_up)
+btn_mirror.clicked.connect(current_image.do_mir)
+btn_sharpness.clicked.connect(current_image.do_blur)
+btn_bw.clicked.connect(current_image.do_bw)
+
 
 main_win.show()
 app.exec_()
