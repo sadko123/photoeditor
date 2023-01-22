@@ -28,7 +28,7 @@ class ImageProcessor():
         lbl_image.show()
     def saveImage(self):
         path = os.path.join(self.current_dir, self.modified_dir_name)
-        if not (os.path.exist(path) and os.path.isdir(path)):
+        if not (os.path.exists(path) and os.path.isdir(path)):
             os.mkdir(path)
         self.full_path = os.path.join(path, self.image_name)
         self.image.save(self.full_path)
@@ -53,8 +53,6 @@ app = QApplication([])
 main_win = QWidget()
 main_win.setWindowTitle('Редактор изображений')
 main_win.resize(700, 500)
-
-
 
 btn_select_dir = QPushButton('Выбрать папку')
 list_widget_images = QListWidget()
@@ -105,7 +103,7 @@ def showFileNames():
 def images_select(all_files):
     result = []
     extentions = ['.png', '.jpeg', '.jpg', '.gif']
-    
+
     for file_name in all_files:
         for ext in extentions:
             if file_name.endswith(ext) or file_name.endswith(ext.upper()):
